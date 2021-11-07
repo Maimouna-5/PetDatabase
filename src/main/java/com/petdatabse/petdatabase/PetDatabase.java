@@ -26,6 +26,7 @@ public class PetDatabase {
 
 		while (true) {
 			int choice = getUserChoice();
+                        System.out.println("Your choice: "+choice);
 			switch (choice) {
 				case 1: {
 					showAllPets();
@@ -80,7 +81,6 @@ public class PetDatabase {
 		System.out.println("5) Search pets by name");
 		System.out.println("6) Search pets by age");
 		System.out.println("7) Exit program");
-		System.out.print("Your choice: ");
 		return s.nextInt();
 	}
 
