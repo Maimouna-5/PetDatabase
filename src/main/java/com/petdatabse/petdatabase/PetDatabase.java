@@ -35,20 +35,30 @@ public class PetDatabase {
 					addPets();
 					break;
 				}
+
 				case 3: {
-					searchPetsByName();
+					updatePet();
 					break;
 				}
+
 				case 4: {
-					searchPetsByAge();
+					removePets();
 					break;
 				}
 				case 5: {
+					searchPetsByName();
+					break;
+				}
+				case 6: {
+					searchPetsByAge();
+					break;
+				}
+				case 7: {
 					System.out.println("Goodbye!");
 					return;
 				}
 				default: {
-				        System.out.println("Invalid\n");
+						System.out.println("Invalid\n");
 				}
 
 			}
@@ -65,9 +75,11 @@ public class PetDatabase {
 		System.out.println("What would you like to do?");
 		System.out.println("1) View all pets");
 		System.out.println("2) Add more pets");
-		System.out.println("3) Search pets by name");
-		System.out.println("4) Search pets by age");
-		System.out.println("5) Exit program");
+		System.out.println("3) Update an existing pet");
+		System.out.println("4) Remove an existing pet");
+		System.out.println("5) Search pets by name");
+		System.out.println("6) Search pets by age");
+		System.out.println("7) Exit program");
 		System.out.print("Your choice: ");
 		return s.nextInt();
 	}
@@ -153,6 +165,29 @@ public class PetDatabase {
 	}
 
 	/**
+	 * This function updates the details of the pet based on the pet id input by the user
+	 * Details include: (name, age)
+	 */
+	public static void updatePet() {
+		//displays the table first
+		showAllPets();
+		System.out.println("Enter the pet ID you wish to update: ");
+		int petId = s.nextInt();
+		if (!isValid(petId)){
+			System.out.println("Invalid id. Please try again.\n");
+			return;
+		}
+		String oldPetName = petList[petId].getName();
+		int oldPetAge = petList[petId].getAge();
+		System.out.println("Enter the new name and new age of the pet: ");
+		String newPetName = s.next();
+		int newPetAge = s.nextInt();
+		petList[petId].setName(newPetName);
+		petList[petId].setAge(newPetAge);
+		System.out.println(oldPetName+" "+Integer.toString(oldPetAge)+" changed to "+newPetName+" "+Integer.toString(newPetAge));
+	}
+
+	/**
 	 *
 	 * @param petIds: list of pet ids to be displayed in the table
 	 * @param rowCount : number of rows in the table
@@ -198,4 +233,20 @@ public class PetDatabase {
 		printTableById(petIds, curr);
 	}
 
+	/**
+	 * This function removes pets based on the pet id input by the user name as input by the user
+	 */
+	public static void removePets() {
+		showAllPets();
+		System.out.println("Enter the pet ID to remove: ");
+		int petId = s.nextInt();
+		if (!isValid(petId)){
+			System.out.println("Invalid id. Please try again.\n");
+			return;
+		}
+		String petName = petList[petId].getName();
+		int petAge = petList[petId].getAge();
+		petList[petId].setIsRemoved(true);
+		System.out.println(petName+" "+Integer.toString(petAge)+" is removed.");
+	}
 }
