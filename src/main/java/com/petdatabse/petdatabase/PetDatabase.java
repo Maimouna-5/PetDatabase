@@ -1,5 +1,4 @@
 package com.petdatabse.petdatabase;
-
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Main.java to edit this template
@@ -71,25 +70,13 @@ public class PetDatabase {
 		int count = 0;
 		while(true){
 			System.out.println("add pet (name, age)\n");
-			if(dbItems.size() == 5) {
-				System.out.println("Error: Database is full.");
-				break;
-			}
 			String input = s.nextLine();
 			String[] items = input.split(" ");
 			String name = items[0];
 			if (name.equalsIgnoreCase("done")){
 				break;
 			}
-			if(items.length != 2) {
-				System.out.println(input +" is not a valid input.");
-				continue;
-			}
 			int age = Integer.parseInt(items[1]);
-			if(age > 20){
-				System.out.println("Error: "+ age +" is not a valid age.");
-				continue;
-			}
 			dbItems.add(new Pet(name, age));
 			count ++;
 		}
@@ -147,7 +134,7 @@ public class PetDatabase {
 	 * @return: returns true if the id is valid, else return false
 	 */
 	private static boolean isValid(int id){
-		return id>=0 && id<dbItems.size() && !dbItems.get(id).getIsRemoved();
+		return true;
 	}
 
 	public static List<Pet> fetchFromDataBase() {
