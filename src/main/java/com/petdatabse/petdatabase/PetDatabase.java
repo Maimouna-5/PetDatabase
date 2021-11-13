@@ -1,32 +1,27 @@
+package com.petdatabse.petdatabase;
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Main.java to edit this template
  */
 
-package com.petdatabse.petdatabase;
 
-/**
- *
- * @author maimounadiallo
- */
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class PetDatabase {
 
-	public static Pet[] petList = new Pet[100];//The pet array used to store pet objects max of 100
-	public static int petCount = 0;//the number of pet in the array
+	public static List<Pet> dbItems = new ArrayList<>();
 	public static Scanner s = new Scanner(System.in);//Scanner which reads the input from the user
 
 	public static void main(String[] args) {
-
-		//initializing 100 pet object instances
-		for(int i=0;i<petList.length;i++){
-			petList[i] = new Pet();
+		List<Pet> fetchedItems = fetchFromDataBase();
+		if(fetchedItems != null) {
+			dbItems = fetchedItems;
 		}
-
 		while (true) {
 			int choice = getUserChoice();
-                        System.out.println("Your choice: "+choice);
 			switch (choice) {
 				case 1: {
 					showAllPets();
@@ -36,32 +31,18 @@ public class PetDatabase {
 					addPets();
 					break;
 				}
-
 				case 3: {
-					updatePet();
-					break;
-				}
-
-				case 4: {
 					removePets();
 					break;
 				}
-				case 5: {
-					searchPetsByName();
-					break;
-				}
-				case 6: {
-					searchPetsByAge();
-					break;
-				}
-				case 7: {
+				case 4: {
+					saveToDataBase(dbItems);
 					System.out.println("Goodbye!");
 					return;
 				}
 				default: {
-						System.out.println("Invalid\n");
+					System.out.println("Invalid\n");
 				}
-
 			}
 		}
 	}
@@ -76,39 +57,30 @@ public class PetDatabase {
 		System.out.println("What would you like to do?");
 		System.out.println("1) View all pets");
 		System.out.println("2) Add more pets");
-		System.out.println("3) Update an existing pet");
-		System.out.println("4) Remove an existing pet");
-		System.out.println("5) Search pets by name");
-		System.out.println("6) Search pets by age");
-		System.out.println("7) Exit program");
-		return s.nextInt();
+		System.out.println("3) Remove a pet");
+		System.out.println("4) Exit program");
+		System.out.print("Your choice: ");
+		return new Scanner(System.in).nextInt();
 	}
 
 	/**
 	 * This function adds the pets (name, age) based on the user input
 	 */
 	public static void addPets() {
-		int numPets = 0;
+		int count = 0;
 		while(true){
 			System.out.println("add pet (name, age)\n");
-			String name = s.next();
+			String input = s.nextLine();
+			String[] items = input.split(" ");
+			String name = items[0];
 			if (name.equalsIgnoreCase("done")){
-				System.out.println("Exiting add pet\n");
 				break;
 			}
-			int age = s.nextInt();
-			numPets++;
-			petCount++;
-			for(int i=0;i<petList.length;i++){
-				if (petList[i].getIsRemoved()){
-					petList[i].setAge(age);
-					petList[i].setName(name);
-					petList[i].setIsRemoved(false);
-					break;
-				}
-			}
+			int age = Integer.parseInt(items[1]);
+			dbItems.add(new Pet(name, age));
+			count ++;
 		}
-		System.out.println(Integer.toString(numPets) +" pets addded.\n");
+		System.out.println(count +" pets addded\n");
 	}
 
 	/**
@@ -148,12 +120,13 @@ public class PetDatabase {
 	 */
 	public static void showAllPets() {
 		printTableHeader();//call the header
-		for (int i = 0; i < petList.length; i++) {//to get the table row method
-			if (!petList[i].getIsRemoved()) {
-				printTableRow(i, petList[i].getName(), petList[i].getAge());//print rows
+		for (int i = 0; i < dbItems.size(); i++) {//to get the table row method
+			if (dbItems.get(i).getIsRemoved()) {
+				continue;
 			}
+			printTableRow(i, dbItems.get(i).getName(), dbItems.get(i).getAge());//print rows
 		}
-		printTableFooter(petCount);//call footer
+		printTableFooter(dbItems.size());//call footer
 	}
 
 	/**
@@ -161,76 +134,62 @@ public class PetDatabase {
 	 * @return: returns true if the id is valid, else return false
 	 */
 	private static boolean isValid(int id){
-		return id>=0 && id<petList.length && !petList[id].getIsRemoved();
+		return true;
 	}
 
-	/**
-	 * This function updates the details of the pet based on the pet id input by the user
-	 * Details include: (name, age)
-	 */
-	public static void updatePet() {
-		//displays the table first
-		showAllPets();
-		System.out.println("Enter the pet ID you wish to update: ");
-		int petId = s.nextInt();
-		if (!isValid(petId)){
-			System.out.println("Invalid id. Please try again.\n");
-			return;
-		}
-		String oldPetName = petList[petId].getName();
-		int oldPetAge = petList[petId].getAge();
-		System.out.println("Enter the new name and new age of the pet: ");
-		String newPetName = s.next();
-		int newPetAge = s.nextInt();
-		petList[petId].setName(newPetName);
-		petList[petId].setAge(newPetAge);
-		System.out.println(oldPetName+" "+Integer.toString(oldPetAge)+" changed to "+newPetName+" "+Integer.toString(newPetAge));
-	}
-
-	/**
-	 *
-	 * @param petIds: list of pet ids to be displayed in the table
-	 * @param rowCount : number of rows in the table
-	 */
-	private static void printTableById(int[] petIds, int rowCount){
-		printTableHeader();
-		for(int i=0;i<rowCount;i++){
-			int curr_id = petIds[i];
-			printTableRow(curr_id, petList[curr_id].getName(), petList[curr_id].getAge());
-		}
-		printTableFooter(rowCount);
-	}
-
-	/**
-	 * This function searches the pet by the name as input by the user
-	 */
-	public static void searchPetsByName() {
-		System.out.println("Enter a name to search: ");
-		String petName = s.next();
-		int[] petIds = new int[100];
-		int curr = 0;
-		for(int i=0;i<petList.length;i++){
-			if (!petList[i].getIsRemoved() && petList[i].getName().equals(petName)){
-				petIds[curr++] = i;
+	public static List<Pet> fetchFromDataBase() {
+		try {
+			List<Pet> petList = new ArrayList<>();
+			//Read from file
+			File inputFile = new File(getFileName());
+			InputStream inputStream = new FileInputStream(inputFile);
+			BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+			String line;
+			//Start reading file line by line
+			while ((line = reader.readLine()) != null) {
+				String[] items = line.split(" ");
+				petList.add(new Pet(items[0], Integer.parseInt(items[1])));
 			}
+			//Close any streams
+			reader.close();
+			return petList;
+		} catch (Exception exception) {
+			return null;
 		}
-		printTableById(petIds, curr);
+	}
+
+	private static String getFileName() {
+            return new File("pet_database.txt").getAbsolutePath();
 	}
 
 	/**
-	 * This function searches the pet by the name as input by the user
+	 * This function stored the list to database
 	 */
-	public static void searchPetsByAge() {//Show the user the name and display the table by showing all the pet
-		System.out.println("Enter age to search: ");
-		int petAge = s.nextInt();
-		int[] petIds = new int[100];
-		int curr = 0;
-		for(int i=0;i<petList.length;i++){
-			if (!petList[i].getIsRemoved() && petList[i].getAge()==petAge){
-				petIds[curr++] = i;
+	private static void saveToDataBase(List<Pet> petList) {
+		try {
+			clearFileContents(getFileName());
+			//Write to file
+			BufferedWriter writer = new BufferedWriter(new FileWriter(getFileName(), true));
+			for(Pet pet: petList) {
+				writer.write(pet.toString());
+				writer.newLine();
 			}
+			//Close any streams
+			writer.close();
+		} catch (IOException exception) {
+			System.out.println("Error saving to Database: "+exception.getLocalizedMessage());
 		}
-		printTableById(petIds, curr);
+	}
+
+	/**
+	 * This function clears the file
+	 * @param fileName
+	 * @throws FileNotFoundException
+	 */
+	private static void clearFileContents(String fileName) throws FileNotFoundException {
+		PrintWriter writer = new PrintWriter(fileName);
+		writer.print("");
+		writer.close();
 	}
 
 	/**
@@ -244,9 +203,11 @@ public class PetDatabase {
 			System.out.println("Invalid id. Please try again.\n");
 			return;
 		}
-		String petName = petList[petId].getName();
-		int petAge = petList[petId].getAge();
-		petList[petId].setIsRemoved(true);
-		System.out.println(petName+" "+Integer.toString(petAge)+" is removed.");
+		String petName = dbItems.get(petId).getName();
+		int petAge =  dbItems.get(petId).getAge();
+		dbItems.get(petId).setIsRemoved(true);
+		System.out.println(petName+" "+ petAge +" is removed.");
 	}
+
+
 }
